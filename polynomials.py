@@ -64,14 +64,3 @@ def sex(
             + t32*(p**2)*(q**4) + t33*p*(q**5))
 
     return qui_term + sex_term
-
-def fit_curve(func, p, q, r, score, sample_weights):
-    size = score.shape[0]
-    popt, _ = curve_fit(func, (p, q, r), score, sigma=sample_weights, absolute_sigma=True)
-    
-    residual = 0.0
-    for i in range(size):
-        residual += np.absolute(score[i] - func((p[i], q[i], r[i]), *popt))
-    err = (residual/size)
-    
-    return popt, err
