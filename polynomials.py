@@ -1,6 +1,3 @@
-from scipy.optimize import curve_fit
-import numpy as np
-
 def lin(x, t0, t1, t2, t3):
     p, q, r = x
     lin_term = (t0 + t1*p + t2*q + t3*r)
