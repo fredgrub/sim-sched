@@ -144,6 +144,24 @@ def perform_experiments(num_exp, trace, trace_name, policies, conditions):
 
 
 def main():
+    # == Possible policies (with flags) ==
+    # "FCFS": ""; "SJF": "-spt"; "WFP3": "-wfp3"; "UNICEF": "-unicef";
+    # "EASY": "-easy"; "F1": "-f1"; "F2": "-f2"; "F3": "-f3"; "F4": "-f4";
+    # "LINEAR": "-linear"; "QUADRATIC": "-quadratic"; "CUBIC": "-cubic";
+    # "QUARTIC": "-quartic"; "QUINTIC": "-quintic"; "SEXTIC": "-sextic"
+    #
+    # == Possible traces (full path is DATA/swfs/<*.swf>) ==
+    # "Lublin_256": "lublin_256.swf"; "estLublin_256": "lublin_256_est.swf";
+    # "Lublin_1024": "lublin_1024.swf"; "estLublin_1024": "lublin_1024_est.swf";
+    # "ANL": "ANL-Interpid-2009-1.swf"; "Curie": "CEA-Curie-2011-2.1-cln.swf";
+    # "CTC_SP2": "CTC-SP2-1996-3.1-cln.swf"; "HPC2N": "HPC2N-2002-2.2-cln.swf";
+    # "SDSC_BLUE": "SDSC-BLUE-2000-4.2-cln.swf"; "SDSC_SP2": "SDSC-SP2-1998-4.2-cln.swf"
+    #
+    # == Possible configuration platforms (full path is DATA/xmls/<*.xml>) ==
+    # "deployment_day.xml"; "deployment_day_1024.xml"; "deployment_anl.xml";
+    # "deployment_curie.xml"; "deployment_ctcsp2.xml"; "deployment_hpc2n.xml";
+    # "deployment_blue.xml"; "deployment_sdscsp2.xml"
+
     filepath = "DATA/lublin_256.swf"
     trace = read_swf(filepath)
     number_of_experiments = 50
