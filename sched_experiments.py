@@ -52,7 +52,7 @@ def get_exec_command(configs, policy_flag, number_of_tasks):
     simulator = configs.simulator
     plat_file = configs.plat_file
     backfilling = configs.backfilling_flag
-    cmd = "./" + simulator + " " + "xmls/plat_day.xml" + " " + plat_file + " " \
+    cmd = "./" + simulator + " " + "DATA/xmls/plat_day.xml" + " " + plat_file + " " \
         + backfilling + policy_flag + "-nt" + " " + str(number_of_tasks)
     
     return cmd
@@ -162,14 +162,14 @@ def main():
     # "deployment_curie.xml"; "deployment_ctcsp2.xml"; "deployment_hpc2n.xml";
     # "deployment_blue.xml"; "deployment_sdscsp2.xml"
 
-    filepath = "DATA/lublin_256.swf"
+    filepath = "DATA/swfs/lublin_256.swf"
     trace = read_swf(filepath)
     number_of_experiments = 50
     trace_name = "Lublin_256"
 
     policies = Policies(["FCFS", "WFP3"], ["", "-wfp3 "], 2)
     exp_config = ExpConfig(
-        "sched-simulator-runtime", "xmls/deployment_day.xml",
+        "sched-simulator-runtime", "DATA/xmls/deployment_day.xml",
         "", "runtimes", False)
 
     slowdowns = perform_experiments(

@@ -893,11 +893,10 @@ int main(int argc, char *argv[])
         chosen_policy = QUARTIC;
       }
       if (strcmp(argv[i], "-quintic") == 0){
-        chosen_policy = QUINTIC
-      }
+        chosen_policy = QUINTIC;
       }
       if (strcmp(argv[i], "-sextic") == 0){
-        chosen_policy = SEXTIC
+        chosen_policy = SEXTIC;
       }
       if (strcmp(argv[i], "-saf") == 0){
         chosen_policy = SAF;
