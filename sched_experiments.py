@@ -119,7 +119,7 @@ def perform_experiments(num_exp, trace, trace_name, policies, conditions):
         task_file.close()
         choose += STATE_SIZE + idx
 
-        number_of_tasks = len(p_s) + len(p_q) # |M| = |S| + |Q|
+        number_of_tasks = int(len(p_s) + len(p_q)) # |M| = |S| + |Q|
         print(f"Performing scheduling experiment {exp}. Number of tasks={number_of_tasks}")
 
         # Simulator calls
@@ -137,7 +137,7 @@ def perform_experiments(num_exp, trace, trace_name, policies, conditions):
         lines = list(_buffer)
         for i in range(number_of_policies):
             policy_name = policies_name[i]
-            temp_data[policy_name] = [float(lines[i])] # store slowdown for each policy
+            temp_data[policy_name] = float(lines[i]) # store slowdown for each policy
         slowdowns = pd.concat([slowdowns, temp_data], ignore_index=True)
         _buffer.close()
     return slowdowns
@@ -149,6 +149,7 @@ def main():
     # "EASY": "-easy"; "F1": "-f1"; "F2": "-f2"; "F3": "-f3"; "F4": "-f4";
     # "LINEAR": "-linear"; "QUADRATIC": "-quadratic"; "CUBIC": "-cubic";
     # "QUARTIC": "-quartic"; "QUINTIC": "-quintic"; "SEXTIC": "-sextic"
+    # "SAF": "-saf"
     #
     # == Possible traces (full path is DATA/swfs/<*.swf>) ==
     # "Lublin_256": "lublin_256.swf"; "estLublin_256": "lublin_256_est.swf";
@@ -162,15 +163,33 @@ def main():
     # "deployment_curie.xml"; "deployment_ctcsp2.xml"; "deployment_hpc2n.xml";
     # "deployment_blue.xml"; "deployment_sdscsp2.xml"
 
+    # Trace and Experiments
     filepath = "DATA/swfs/lublin_256.swf"
     trace = read_swf(filepath)
     number_of_experiments = 50
     trace_name = "Lublin_256"
+    
 
-    policies = Policies(["FCFS", "WFP3"], ["", "-wfp3 "], 2)
+    simulator = "sched-simulator-runtime"
+    # simulator = "sched-simulator-estimate-backfilling"
+    plat_file = "DATA/xmls/deployment_day.xml"
     exp_config = ExpConfig(
-        "sched-simulator-runtime", "DATA/xmls/deployment_day.xml",
-        "", "runtimes", False)
+        simulator, plat_file,
+        backfilling_flag="", description="runtimes", estimated=False
+        )
+    
+    # Policies
+    policies_list = [
+        "FCFS", "SAF", "LINEAR", "QUADRATIC", "CUBIC",
+        "QUARTIC", "QUINTIC", "SEXTIC"
+        ]
+    policies_flags = [
+        "", "-saf ", "-linear ", "-quadratic ", "-cubic ",
+        "-quartic ", "-quintic ", "-sextic "
+    ]
+    size = len(policies_list)
+
+    policies = Policies(policies_list, policies_flags, size)
 
     slowdowns = perform_experiments(
         number_of_experiments, trace, trace_name, policies, exp_config)
