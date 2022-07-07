@@ -52,8 +52,8 @@ def get_exec_command(configs, policy_flag, number_of_tasks):
     simulator = configs.simulator
     plat_file = configs.plat_file
     backfilling = configs.backfilling_flag
-    cmd = "./" + simulator + " " + "DATA/xmls/plat_day.xml" + " " + plat_file + " " \
-        + backfilling + policy_flag + "-nt" + " " + str(number_of_tasks)
+    cmd = "./" + simulator + " " + "DATA/xmls/plat_day.xml" + " "\
+        + plat_file + " " + backfilling + " " + policy_flag + " " + "-nt" + " " + str(number_of_tasks)
     
     return cmd
 
@@ -137,10 +137,100 @@ def perform_experiments(num_exp, trace, trace_name, policies, conditions):
         lines = list(_buffer)
         for i in range(number_of_policies):
             policy_name = policies_name[i]
-            temp_data[policy_name] = float(lines[i]) # store slowdown for each policy
+            temp_data[policy_name] = [float(lines[i])] # store slowdown for each policy
         slowdowns = pd.concat([slowdowns, temp_data], ignore_index=True)
         _buffer.close()
     return slowdowns
+
+def func_comparison():
+    traces = {
+        "Lublin_256": [50, "DATA/swfs/lublin_256.swf", "DATA/xmls/deployment_day.xml"],
+        "Lublin_1024": [50, "DATA/swfs/lublin_1024.swf", "DATA/xmls/deployment_day_1024.xml"]
+        }
+    simulator = "sched-simulator-runtime"
+    description = "runtimes"
+
+    for trace_name, configs in traces.items():
+        
+        # Setting up experiment configurations
+        number_of_experiments = configs[0]
+        trace = read_swf(configs[1])
+        plat_file = configs[2]
+        exp_config = ExpConfig(
+            simulator, plat_file,
+            backfilling_flag="", description=description, estimated=False)
+
+        # Run policies experiments
+        policies_flags = {
+            "FCFS": "",
+            "WFP3": "-wfp3",
+            "UNICEF": "-unicef",
+            "SJT": "-spt",
+            "SAF": "-saf",
+            "SEX": "-sextic",
+            "QUI": "-quintic",
+            "QUA": "-quartic",
+            "CUB": "-cubic",
+            "SQR": "-quadratic",
+            "LIN": "-linear"
+        }
+        size = len(policies_flags)
+        policies = Policies(list(policies_flags.keys()), list(policies_flags.values()), size)
+
+        # Perform the experiments
+        slowdowns = perform_experiments(number_of_experiments, trace, trace_name, policies, exp_config)
+        
+        # Save slowdowns as CSV
+        slowdowns.to_csv("DATA/experiments/" + trace_name + "_" + exp_config.description + ".csv", index=False)
+
+def real_workload_experiments():
+    # Setting up experiment configurations
+    traces = {
+        "ANL": [15, "DATA/swfs/ANL-Intrepid-2009-1.swf", "DATA/xmls/deployment_anl.xml"],
+        "CTC_SP2": [22, "DATA/swfs/CTC-SP2-1996-3.1-cln.swf", "DATA/xmls/deployment_ctcsp2.xml"],
+        "HPC2N": [83, "DATA/swfs/HPC2N-2002-2.2-cln.swf", "DATA/xmls/deployment_hpc2n.xml"],
+        "SDSC_BLUE": [64, "DATA/swfs/SDSC-BLUE-2000-4.2-cln.swf", "xmls/deployment_blue.xml"],
+        "SDSC_SP2": [47, "DATA/swfs/SDSC-SP2-1998-4.2-cln.swf", "DATA/xmls/deployment_sdscsp2.xml"]
+        }
+
+    simulators = {
+        "sched-simulator-runtime": ["", "runtimes", False],
+        "sched-simulator-estimate-backfilling": ["", "estimate", True],
+        "sched-simulator-estimate-backfilling": ["-bf", "backfilling", True]
+        }
+
+    for simulator, sim_conf in simulators.items():
+        backfilling_flag = sim_conf[0]
+        description = sim_conf[1]
+        use_estimated = sim_conf[2]
+
+        for trace_name, configs in traces.items():
+            # Setting up experiment configurations
+            number_of_experiments = configs[0]
+            trace = read_swf(configs[1])
+            plat_file = configs[2]
+            exp_config = ExpConfig(
+                simulator, plat_file,
+                backfilling_flag, description, use_estimated)
+
+            # Run policies experiments
+            policies_flags = {
+                "FCFS": "",
+                "WFP3": "-wfp3",
+                "UNICEF": "-unicef",
+                "SJT": "-spt",
+                "SAF": "-saf",
+                "F2": "-f2",
+                "LIN": "-linear"
+            }
+            size = len(policies_flags)
+            policies = Policies(list(policies_flags.keys()), list(policies_flags.values()), size)
+
+            # Perform the experiments
+            slowdowns = perform_experiments(number_of_experiments, trace, trace_name, policies, exp_config)
+            
+            # Save slowdowns as CSV
+            slowdowns.to_csv("DATA/experiments/" + trace_name + "_" + exp_config.description + ".csv", index=False)
 
 
 def main():
@@ -163,38 +253,9 @@ def main():
     # "deployment_curie.xml"; "deployment_ctcsp2.xml"; "deployment_hpc2n.xml";
     # "deployment_blue.xml"; "deployment_sdscsp2.xml"
 
-    # Trace and Experiments
-    filepath = "DATA/swfs/lublin_256.swf"
-    trace = read_swf(filepath)
-    number_of_experiments = 50
-    trace_name = "Lublin_256"
-    
+    #func_comparison()
 
-    simulator = "sched-simulator-runtime"
-    # simulator = "sched-simulator-estimate-backfilling"
-    plat_file = "DATA/xmls/deployment_day.xml"
-    exp_config = ExpConfig(
-        simulator, plat_file,
-        backfilling_flag="", description="runtimes", estimated=False
-        )
-    
-    # Policies
-    policies_list = [
-        "FCFS", "SAF", "LINEAR", "QUADRATIC", "CUBIC",
-        "QUARTIC", "QUINTIC", "SEXTIC"
-        ]
-    policies_flags = [
-        "", "-saf ", "-linear ", "-quadratic ", "-cubic ",
-        "-quartic ", "-quintic ", "-sextic "
-    ]
-    size = len(policies_list)
-
-    policies = Policies(policies_list, policies_flags, size)
-
-    slowdowns = perform_experiments(
-        number_of_experiments, trace, trace_name, policies, exp_config)
-    
-    slowdowns.to_csv(trace_name + "_" + exp_config.description + ".csv", index=False)
+    real_workload_experiments()
 
 if __name__ == "__main__":
     main()

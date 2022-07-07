@@ -303,7 +303,9 @@ void sortTasksQueue(double* runtimes, int* cores, int* submit, int* orig_pos, in
   //printf("%d\n", max_arrive); 
   int task_age = 0;
   for(i = 0; i < num_arrived_tasks;i++){
-    task_age = curr_time - submit[i]; 
+    task_age = curr_time - submit[i];
+    double p_norm = runtimes[i] / 3600;
+    double r_norm = submit[i] / 3600;
     switch(policy){
       case 30:
 	    h_values[i] = ((float)task_age/(float)runtimes[i]) * cores[i];
@@ -327,107 +329,107 @@ void sortTasksQueue(double* runtimes, int* cores, int* submit, int* orig_pos, in
           h_values[i] = (-0.0155183403 * log10(runtimes[i])) * (-0.0005149209 * cores[i]) + (0.0069596182 * log10(submit[i])); //256nodes
           break;
       case LINEAR:
-          // h_values[i] = 3.16688932E-02 + (1.24214915E-07 * runtimes[i]) + (3.10222317E-05 * cores[i]) + (-1.62730301E-07 * submit[i]);
+          // h_values[i] = 3.16688932E-02 + (1.24214915E-07 * p_norm) + (3.10222317E-05 * cores[i]) + (-1.62730301E-07 * r_norm);
           h_values[i] = 0.032247578568287236 \
           // p + q + r
-          + (5.24248737e-04 * runtimes[i]) + (1.61682411e-05 * cores[i]) + (-4.25473461e-04 * submit[i]);
+          + (5.24248737e-04 * p_norm) + (1.61682411e-05 * cores[i]) + (-4.25473461e-04 * r_norm);
           break;
       case QUADRATIC:
-          // h_values[i] = 3.59070690E-02 + (3.57653837E-07 * runtimes[i]) + (-3.05321285E-05 * cores[i]) + (-4.32808767E-07 * submit[i]) + (-3.68598108E-12 * pow(runtimes[i], 2)) + (1.46361083E-07 * pow(cores[i], 2)) + (2.94999301E-12 * pow(submit[i], 2)) + (4.79106778E-10*runtimes[i] * cores[i]);
+          // h_values[i] = 3.59070690E-02 + (3.57653837E-07 * p_norm) + (-3.05321285E-05 * cores[i]) + (-4.32808767E-07 * r_norm) + (-3.68598108E-12 * pow(p_norm, 2)) + (1.46361083E-07 * pow(cores[i], 2)) + (2.94999301E-12 * pow(r_norm, 2)) + (4.79106778E-10*p_norm * cores[i]);
           h_values[i] = 0.034335696489395516 \
           // p + q + r
-          + (5.49192941e-04 * runtimes[i]) + (5.52856529e-06 * cores[i]) + (-9.87686123e-04 * submit[i]) \
+          + (5.49192941e-04 * p_norm) + (5.52856529e-06 * cores[i]) + (-9.87686123e-04 * r_norm) \
           // p2 + q2 + r2
-          + (-9.81183659e-06 * pow(runtimes[i], 2)) + (1.06725323e-08 * pow(cores[i], 2)) + (2.35285729e-05 * pow(submit[i], 2)) \
+          + (-9.81183659e-06 * pow(p_norm, 2)) + (1.06725323e-08 * pow(cores[i], 2)) + (2.35285729e-05 * pow(r_norm, 2)) \
           // pq
-          + (1.70895013e-06 * runtimes[i]*cores[i]);
+          + (1.70895013e-06 * p_norm*cores[i]);
           break;
       case CUBIC:
-          // h_values[i] = 5.49939742e-02 + (-1.42358275e-06 * runtimes[i]) + (-1.66172060e-04 * cores[i]) + (-7.32530172e-07 * submit[i]) + (3.33805977e-11 * pow(runtimes[i], 2)) + (1.43074227e-07 * pow(cores[i], 2)) + (9.32866675e-12 * pow(submit[i], 2)) + (1.77599437e-08*runtimes[i] * cores[i]) + (-1.64597448e-16 * pow(runtimes[i], 3)) + (1.01906798e-09 * pow(cores[i], 3)) + (-3.19724119e-17 * pow(submit[i], 3)) + (-2.60511394e-13*pow(runtimes[i], 2) * cores[i]) + (-4.07107551e-11*runtimes[i] * pow(cores[i], 2)) + 5.83699122e-16*pow(runtimes[i]*cores[i], 2);
+          // h_values[i] = 5.49939742e-02 + (-1.42358275e-06 * p_norm) + (-1.66172060e-04 * cores[i]) + (-7.32530172e-07 * r_norm) + (3.33805977e-11 * pow(p_norm, 2)) + (1.43074227e-07 * pow(cores[i], 2)) + (9.32866675e-12 * pow(r_norm, 2)) + (1.77599437e-08*p_norm * cores[i]) + (-1.64597448e-16 * pow(p_norm, 3)) + (1.01906798e-09 * pow(cores[i], 3)) + (-3.19724119e-17 * pow(r_norm, 3)) + (-2.60511394e-13*pow(p_norm, 2) * cores[i]) + (-4.07107551e-11*p_norm * pow(cores[i], 2)) + 5.83699122e-16*pow(p_norm*cores[i], 2);
           h_values[i] = 0.03781996606037328 \
           // p + q + r
-          + (-5.09613078e-05 * runtimes[i]) + (-2.34855993e-05 * cores[i]) + (-1.73214474e-03 * submit[i]) \
+          + (-5.09613078e-05 * p_norm) + (-2.34855993e-05 * cores[i]) + (-1.73214474e-03 * r_norm) \
           // p2 + q2 + r2
-          + (2.02738340e-05 * pow(runtimes[i], 2)) + (1.08165338e-08 * pow(cores[i], 2)) + (8.48481749e-05 * pow(submit[i], 2)) \
+          + (2.02738340e-05 * pow(p_norm, 2)) + (1.08165338e-08 * pow(cores[i], 2)) + (8.48481749e-05 * pow(r_norm, 2)) \
           // pq
-          + (1.23822857e-05 * runtimes[i]*cores[i]) \
+          + (1.23822857e-05 * p_norm*cores[i]) \
           // p3 + q3 + r3
-          + (-2.68940831e-07 * pow(runtimes[i], 3)) + (1.76844551e-10 * pow(cores[i], 3)) + (-1.16392202e-06 * pow(submit[i], 3)) \
+          + (-2.68940831e-07 * pow(p_norm, 3)) + (1.76844551e-10 * pow(cores[i], 3)) + (-1.16392202e-06 * pow(r_norm, 3)) \
           // p2q + pq2
-          + (-4.26793941e-07 * pow(runtimes[i], 2)*cores[i]) + (-1.60394373e-08 * runtimes[i]*pow(cores[i], 2));
+          + (-4.26793941e-07 * pow(p_norm, 2)*cores[i]) + (-1.60394373e-08 * p_norm*pow(cores[i], 2));
           break;
       case QUARTIC:
-          // h_values[i] = 4.60676052e-02 + (-7.76765755e-07 * runtimes[i]) + (-1.76313342e-05 * cores[i]) + (-6.47786293e-07 * submit[i]) + (3.68129776e-11 * pow(runtimes[i], 2)) + (5.30588161e-07 * pow(cores[i], 2)) + (5.43172102e-12 * pow(submit[i], 2)) + (-2.86914325e-09*runtimes[i] * cores[i]) + (-5.23476439e-16 * pow(runtimes[i], 3)) + (-6.68052736e-09 * pow(cores[i], 3)) + (2.74681557e-17 * pow(submit[i], 3)) + (7.14008267e-14*pow(runtimes[i], 2) * cores[i]) + (4.89098847e-11*runtimes[i] * pow(cores[i], 2)) + -3.81658916e-16*pow(runtimes[i]*cores[i], 2) + (2.29158387e-21 * pow(runtimes[i], 4)) + (1.79103008e-11 * pow(cores[i], 4)) + (-2.48090946e-22 * pow(submit[i], 3)) + (-8.60381994e-19*pow(runtimes[i], 3) * cores[i]) + (-1.02011767e-13*pow(cores[i], 3) * runtimes[i]) + (6.21802436e-24*pow(runtimes[i] * cores[i], 3));
+          // h_values[i] = 4.60676052e-02 + (-7.76765755e-07 * p_norm) + (-1.76313342e-05 * cores[i]) + (-6.47786293e-07 * r_norm) + (3.68129776e-11 * pow(p_norm, 2)) + (5.30588161e-07 * pow(cores[i], 2)) + (5.43172102e-12 * pow(r_norm, 2)) + (-2.86914325e-09*p_norm * cores[i]) + (-5.23476439e-16 * pow(p_norm, 3)) + (-6.68052736e-09 * pow(cores[i], 3)) + (2.74681557e-17 * pow(r_norm, 3)) + (7.14008267e-14*pow(p_norm, 2) * cores[i]) + (4.89098847e-11*p_norm * pow(cores[i], 2)) + -3.81658916e-16*pow(p_norm*cores[i], 2) + (2.29158387e-21 * pow(p_norm, 4)) + (1.79103008e-11 * pow(cores[i], 4)) + (-2.48090946e-22 * pow(r_norm, 3)) + (-8.60381994e-19*pow(p_norm, 3) * cores[i]) + (-1.02011767e-13*pow(cores[i], 3) * p_norm) + (6.21802436e-24*pow(p_norm * cores[i], 3));
           h_values[i] = 0.040430109789934825 \
           // p + q + r
-          + (-2.10979902e-04 * runtimes[i]) + (-1.01034613e-04 * cores[i]) + (-2.31932629e-03 * submit[i]) \
+          + (-2.10979902e-04 * p_norm) + (-1.01034613e-04 * cores[i]) + (-2.31932629e-03 * r_norm) \
           // p2 + q2 + r2
-          + (2.04795625e-05 * pow(runtimes[i], 2)) + (1.31113039e-06 * pow(cores[i], 2)) + (1.65841430e-04 * pow(submit[i], 2)) \
+          + (2.04795625e-05 * pow(p_norm, 2)) + (1.31113039e-06 * pow(cores[i], 2)) + (1.65841430e-04 * pow(r_norm, 2)) \
           // pq
-          + (1.14337285e-05 * runtimes[i]*cores[i]) \
+          + (1.14337285e-05 * p_norm*cores[i]) \
           // p3 + q3 + r3
-          + (-1.40495599e-06 * pow(runtimes[i], 3)) + (-6.55426185e-09 * pow(cores[i], 3)) + (-4.92021540e-06 * pow(submit[i], 3)) \
+          + (-1.40495599e-06 * pow(p_norm, 3)) + (-6.55426185e-09 * pow(cores[i], 3)) + (-4.92021540e-06 * pow(r_norm, 3)) \
           // p2q + pq2
-          + (1.09258695e-06 * pow(runtimes[i], 2)*cores[i]) + (-9.41295917e-08 * runtimes[i]*pow(cores[i], 2)) \
+          + (1.09258695e-06 * pow(p_norm, 2)*cores[i]) + (-9.41295917e-08 * p_norm*pow(cores[i], 2)) \
           // p4 + q4 + r4
-          + (4.19440932e-08 * pow(runtimes[i], 4)) + (1.19265500e-11 * pow(cores[i], 4)) + (5.11827953e-08 * pow(submit[i], 4)) \
+          + (4.19440932e-08 * pow(p_norm, 4)) + (1.19265500e-11 * pow(cores[i], 4)) + (5.11827953e-08 * pow(r_norm, 4)) \
           // p3q + p2q2 + pq3
-          + (-5.09427736e-08 * pow(runtimes[i], 3)*cores[i]) + (-3.25131488e-10 * pow(runtimes[i]*cores[i], 2)) + (1.68809105e-10 * pow(cores[i], 3)*runtimes[i]);
+          + (-5.09427736e-08 * pow(p_norm, 3)*cores[i]) + (-3.25131488e-10 * pow(p_norm*cores[i], 2)) + (1.68809105e-10 * pow(cores[i], 3)*p_norm);
           break;
       case QUINTIC:
-          // h_values[i] = 4.60676052e-02 + (-7.76765755e-07 * runtimes[i]) + (-1.76313342e-05 * cores[i]) + (-6.47786293e-07 * submit[i]) + (3.68129776e-11 * pow(runtimes[i], 2)) + (5.30588161e-07 * pow(cores[i], 2)) + (5.43172102e-12 * pow(submit[i], 2)) + (-2.86914325e-09*runtimes[i] * cores[i]) + (-5.23476439e-16 * pow(runtimes[i], 3)) + (-6.68052736e-09 * pow(cores[i], 3)) + (2.74681557e-17 * pow(submit[i], 3)) + (7.14008267e-14*pow(runtimes[i], 2) * cores[i]) + (4.89098847e-11*runtimes[i] * pow(cores[i], 2)) + -3.81658916e-16*pow(runtimes[i]*cores[i], 2) + (2.29158387e-21 * pow(runtimes[i], 4)) + (1.79103008e-11 * pow(cores[i], 4)) + (-2.48090946e-22 * pow(submit[i], 3)) + (-8.60381994e-19*pow(runtimes[i], 3) * cores[i]) + (-1.02011767e-13*pow(cores[i], 3) * runtimes[i]) + (6.21802436e-24*pow(runtimes[i] * cores[i], 3));
+          // h_values[i] = 4.60676052e-02 + (-7.76765755e-07 * p_norm) + (-1.76313342e-05 * cores[i]) + (-6.47786293e-07 * r_norm) + (3.68129776e-11 * pow(p_norm, 2)) + (5.30588161e-07 * pow(cores[i], 2)) + (5.43172102e-12 * pow(r_norm, 2)) + (-2.86914325e-09*p_norm * cores[i]) + (-5.23476439e-16 * pow(p_norm, 3)) + (-6.68052736e-09 * pow(cores[i], 3)) + (2.74681557e-17 * pow(r_norm, 3)) + (7.14008267e-14*pow(p_norm, 2) * cores[i]) + (4.89098847e-11*p_norm * pow(cores[i], 2)) + -3.81658916e-16*pow(p_norm*cores[i], 2) + (2.29158387e-21 * pow(p_norm, 4)) + (1.79103008e-11 * pow(cores[i], 4)) + (-2.48090946e-22 * pow(r_norm, 3)) + (-8.60381994e-19*pow(p_norm, 3) * cores[i]) + (-1.02011767e-13*pow(cores[i], 3) * p_norm) + (6.21802436e-24*pow(p_norm * cores[i], 3));
           h_values[i] = 0.038988050583477096 \
           // p + q + r
-          + (2.73452709e-04 * runtimes[i]) + (7.69022102e-05 * cores[i]) + (-3.22249183e-03 * submit[i]) \
+          + (2.73452709e-04 * p_norm) + (7.69022102e-05 * cores[i]) + (-3.22249183e-03 * r_norm) \
           // p2 + q2 + r2
-          + (6.43770345e-05 * pow(runtimes[i], 2)) + (-1.79747632e-06 * pow(cores[i], 2)) + (3.50127821e-04 * pow(submit[i], 2)) \
+          + (6.43770345e-05 * pow(p_norm, 2)) + (-1.79747632e-06 * pow(cores[i], 2)) + (3.50127821e-04 * pow(r_norm, 2)) \
           // pq
-          + (-1.23817261e-05 * runtimes[i]*cores[i]) \
+          + (-1.23817261e-05 * p_norm*cores[i]) \
           // p3 + q3 + r3
-          + (-2.88424111e-06 * pow(runtimes[i], 3)) + (5.91576673e-09 * pow(cores[i], 3)) + (-1.93318856e-05 * pow(submit[i], 3)) \
+          + (-2.88424111e-06 * pow(p_norm, 3)) + (5.91576673e-09 * pow(cores[i], 3)) + (-1.93318856e-05 * pow(r_norm, 3)) \
           // p2q + pq2
-          + (-6.48604231e-06 * pow(runtimes[i], 2)*cores[i]) + (7.98548664e-07 * runtimes[i]*pow(cores[i], 2)) \
+          + (-6.48604231e-06 * pow(p_norm, 2)*cores[i]) + (7.98548664e-07 * p_norm*pow(cores[i], 2)) \
           // p4 + q4 + r4
-          + (-1.87753585e-07 * pow(runtimes[i], 4)) + (2.18593974e-11 * pow(cores[i], 4)) + (5.08486844e-07 * pow(submit[i], 4)) \
+          + (-1.87753585e-07 * pow(p_norm, 4)) + (2.18593974e-11 * pow(cores[i], 4)) + (5.08486844e-07 * pow(r_norm, 4)) \
           // p3q + p2q2 + pq3
-          + (6.42796628e-07 * pow(runtimes[i], 3)*cores[i]) + (1.98766825e-09 * pow(runtimes[i]*cores[i], 2)) + (-5.08237988e-09 * pow(cores[i], 3)*runtimes[i])
+          + (6.42796628e-07 * pow(p_norm, 3)*cores[i]) + (1.98766825e-09 * pow(p_norm*cores[i], 2)) + (-5.08237988e-09 * pow(cores[i], 3)*p_norm)
           // p5 + q5 + r5
-          + (7.56223729e-09 * pow(runtimes[i], 5)) + (-8.82511427e-14 * pow(cores[i], 5)) + (-4.90135508e-09 * pow(submit[i], 5)) \
+          + (7.56223729e-09 * pow(p_norm, 5)) + (-8.82511427e-14 * pow(cores[i], 5)) + (-4.90135508e-09 * pow(r_norm, 5)) \
           // p4q + p3q2
-          + (-1.54514292e-08 * pow(runtimes[i], 4)*cores[i]) + (-7.38101914e-10 * pow(runtimes[i], 3)*pow(cores[i], 2)) \
+          + (-1.54514292e-08 * pow(p_norm, 4)*cores[i]) + (-7.38101914e-10 * pow(p_norm, 3)*pow(cores[i], 2)) \
           // p2q3 + pq4
-          + (2.68544307e-11 * pow(runtimes[i], 2)*pow(cores[i], 3)) + (9.36081253e-12 * runtimes[i]*pow(cores[i], 4));
+          + (2.68544307e-11 * pow(p_norm, 2)*pow(cores[i], 3)) + (9.36081253e-12 * p_norm*pow(cores[i], 4));
           break;
       case SEXTIC:
           h_values[i] = 0.03716302646065289 \
           // p + q + r
-          + (6.41521182e-04 * runtimes[i]) + (4.26864527e-04 * cores[i]) + (-4.16425862e-03 * submit[i]) \
+          + (6.41521182e-04 * p_norm) + (4.26864527e-04 * cores[i]) + (-4.16425862e-03 * r_norm) \
           // p2 + q2 + r2
-          + (1.49566455e-04 * pow(runtimes[i], 2)) + (-1.14347869e-05 * pow(cores[i], 2)) + (6.12884457e-04 * pow(submit[i], 2)) \
+          + (1.49566455e-04 * pow(p_norm, 2)) + (-1.14347869e-05 * pow(cores[i], 2)) + (6.12884457e-04 * pow(r_norm, 2)) \
           // pq
-          + (-9.59479573e-05 * runtimes[i]*cores[i]) \
+          + (-9.59479573e-05 * p_norm*cores[i]) \
           // p3 + q3 + r3
-          + (-3.54045251e-05 * pow(runtimes[i], 3)) + (1.39510813e-07 * pow(cores[i], 3)) + (-4.87573975e-05 * pow(submit[i], 3)) \
+          + (-3.54045251e-05 * pow(p_norm, 3)) + (1.39510813e-07 * pow(cores[i], 3)) + (-4.87573975e-05 * pow(r_norm, 3)) \
           // p2q + pq2
-          + (1.13575542e-05 * pow(runtimes[i], 2)*cores[i]) + (1.51210086e-06 * runtimes[i]*pow(cores[i], 2)) \
+          + (1.13575542e-05 * pow(p_norm, 2)*cores[i]) + (1.51210086e-06 * p_norm*pow(cores[i], 2)) \
           // p4 + q4 + r4
-          + (3.22956196e-06 * pow(runtimes[i], 4)) + (-9.25921216e-10 * pow(cores[i], 4)) + (2.01247903e-06 * pow(submit[i], 4)) \
+          + (3.22956196e-06 * pow(p_norm, 4)) + (-9.25921216e-10 * pow(cores[i], 4)) + (2.01247903e-06 * pow(r_norm, 4)) \
           // p3q + p2q2 + pq3
-          + (-1.22892966e-06 * pow(runtimes[i], 3)*cores[i]) + (-9.70097879e-08 * pow(runtimes[i]*cores[i], 2)) + (-7.77024939e-09 * pow(cores[i], 3)*runtimes[i])
+          + (-1.22892966e-06 * pow(p_norm, 3)*cores[i]) + (-9.70097879e-08 * pow(p_norm*cores[i], 2)) + (-7.77024939e-09 * pow(cores[i], 3)*p_norm)
           // p5 + q5 + r5
-          + (-1.34380105e-07 * pow(runtimes[i], 5)) + (3.16107259e-12 * pow(cores[i], 5)) + (-3.98682447e-08 * pow(submit[i], 5)) \
+          + (-1.34380105e-07 * pow(p_norm, 5)) + (3.16107259e-12 * pow(cores[i], 5)) + (-3.98682447e-08 * pow(r_norm, 5)) \
           // p4q + p3q2
-          + (7.20792845e-08 * pow(runtimes[i], 4)*cores[i]) + (6.03178917e-09 * pow(runtimes[i], 3)*pow(cores[i], 2)) \
+          + (7.20792845e-08 * pow(p_norm, 4)*cores[i]) + (6.03178917e-09 * pow(p_norm, 3)*pow(cores[i], 2)) \
           // p2q3 + pq4
-          + (2.29215937e-10 * pow(runtimes[i], 2)*pow(cores[i], 3)) + (1.41926779e-11 * runtimes[i]*pow(cores[i], 4)) \
+          + (2.29215937e-10 * pow(p_norm, 2)*pow(cores[i], 3)) + (1.41926779e-11 * p_norm*pow(cores[i], 4)) \
           // p6 + q6 + r6
-          + (2.04292170e-09 * pow(runtimes[i], 6)) + (-4.24431834e-15 * pow(cores[i], 6)) + (2.99071239e-10 * pow(submit[i], 6)) \
+          + (2.04292170e-09 * pow(p_norm, 6)) + (-4.24431834e-15 * pow(cores[i], 6)) + (2.99071239e-10 * pow(r_norm, 6)) \
           // p5q + p4q2
-          + (-1.50403822e-09 * pow(runtimes[i], 5)*cores[i]) + (-1.34608366e-10 * pow(runtimes[i], 4)*pow(cores[i], 2)) \
+          + (-1.50403822e-09 * pow(p_norm, 5)*cores[i]) + (-1.34608366e-10 * pow(p_norm, 4)*pow(cores[i], 2)) \
           // p3q3 + p2q4
-          + (-9.15186712e-12 * pow(runtimes[i], 3)*pow(cores[i], 3)) + (-4.41111039e-14 * pow(runtimes[i], 2)*pow(cores[i], 4)) \
+          + (-9.15186712e-12 * pow(p_norm, 3)*pow(cores[i], 3)) + (-4.41111039e-14 * pow(p_norm, 2)*pow(cores[i], 4)) \
           // pq5
-          + (-4.79289535e-15 * runtimes[i]*pow(cores[i], 5));
+          + (-4.79289535e-15 * p_norm*pow(cores[i], 5));
           break;
       case SAF:
           h_values[i] = runtimes[i] * cores[i];
