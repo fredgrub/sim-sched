@@ -186,22 +186,27 @@ def func_comparison():
 def real_workload_experiments():
     # Setting up experiment configurations
     traces = {
-        "ANL": [15, "DATA/swfs/ANL-Intrepid-2009-1.swf", "DATA/xmls/deployment_anl.xml"],
-        "CTC_SP2": [22, "DATA/swfs/CTC-SP2-1996-3.1-cln.swf", "DATA/xmls/deployment_ctcsp2.xml"],
-        "HPC2N": [83, "DATA/swfs/HPC2N-2002-2.2-cln.swf", "DATA/xmls/deployment_hpc2n.xml"],
-        "SDSC_BLUE": [64, "DATA/swfs/SDSC-BLUE-2000-4.2-cln.swf", "xmls/deployment_blue.xml"],
-        "SDSC_SP2": [47, "DATA/swfs/SDSC-SP2-1998-4.2-cln.swf", "DATA/xmls/deployment_sdscsp2.xml"]
+        # "ANL": [15, "DATA/swfs/ANL-Intrepid-2009-1.swf", "DATA/xmls/deployment_anl.xml"],
+        # "CTC_SP2": [22, "DATA/swfs/CTC-SP2-1996-3.1-cln.swf", "DATA/xmls/deployment_ctcsp2.xml"],
+        # "HPC2N": [83, "DATA/swfs/HPC2N-2002-2.2-cln.swf", "DATA/xmls/deployment_hpc2n.xml"],
+        # "SDSC_BLUE": [64, "DATA/swfs/SDSC-BLUE-2000-4.2-cln.swf", "xmls/deployment_blue.xml"],
+        # "SDSC_SP2": [47, "DATA/swfs/SDSC-SP2-1998-4.2-cln.swf", "DATA/xmls/deployment_sdscsp2.xml"]
+        "CURIE": [15, "DATA/swfs/CEA-Curie-2011-2.1-cln.swf", "DATA/xmls/deployment_curie.xml"],
+        # "Lublin_256": [50, "DATA/swfs/lublin_256.swf", "DATA/xmls/deployment_day.xml"],
+        # "Lublin_1024": [50, "DATA/swfs/lublin_1024.swf", "DATA/xmls/deployment_day_1024.xml"],
+        # "estLublin_256": [50, "DATA/swfs/lublin_256_est.swf", "DATA/xmls/deployment_day.xml"],
+        # "estLublin_1024": [50, "DATA/swfs/lublin_1024_est.swf", "DATA/xmls/deployment_day_1024.xml"]
         }
 
     simulators = {
-        "sched-simulator-runtime": ["", "runtimes", False],
-        "sched-simulator-estimate-backfilling": ["", "estimate", True],
-        "sched-simulator-estimate-backfilling": ["-bf", "backfilling", True]
+        # "runtimes": ["sched-simulator-runtime", "", False],
+        "estimate": ["sched-simulator-estimate-backfilling", "", True],
+        # "backfilling": ["sched-simulator-estimate-backfilling", "-bf", True]
         }
 
-    for simulator, sim_conf in simulators.items():
-        backfilling_flag = sim_conf[0]
-        description = sim_conf[1]
+    for description, sim_conf in simulators.items():
+        simulator = sim_conf[0]
+        backfilling_flag = sim_conf[1]
         use_estimated = sim_conf[2]
 
         for trace_name, configs in traces.items():
@@ -218,7 +223,7 @@ def real_workload_experiments():
                 "FCFS": "",
                 "WFP3": "-wfp3",
                 "UNICEF": "-unicef",
-                "SJT": "-spt",
+                "SPT": "-spt",
                 "SAF": "-saf",
                 "F2": "-f2",
                 "LIN": "-linear"
@@ -254,7 +259,6 @@ def main():
     # "deployment_blue.xml"; "deployment_sdscsp2.xml"
 
     #func_comparison()
-
     real_workload_experiments()
 
 if __name__ == "__main__":
