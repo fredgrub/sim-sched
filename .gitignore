@@ -2,3 +2,5 @@
 __pycache__/
 sched-simulator-runtime
 sched-simulator-estimate-backfilling
+initial-simulation-submit.csv
+plot-temp.dat
