@@ -47,3 +47,7 @@ bash ~/miniconda.sh -b -p $HOME/miniconda
 eval "$(/home/ubuntu/miniconda/bin/conda shell.bash hook)"
 conda init
 chown -R ubuntu:ubuntu /home/ubuntu/miniconda # fix permissions
+
+# Configuring git
+git config --global user.name "Lucas de Sousa Rosa"
+git config --global user.email "roses.lucas404@gmail.com"
